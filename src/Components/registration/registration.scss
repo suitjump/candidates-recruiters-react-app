@@ -1,0 +1,166 @@
+.reg {
+    background: url("./svg/background.jpg") no-repeat fixed center top;
+    background-size: cover;
+    display: flex;
+    overflow: auto;
+    height: 100vh;
+    width: 100%;
+    &__wrap {
+        margin: 64px auto;
+        background-color: #fff;
+        border-radius: 10px;
+        height: 861px;
+        width: 592px;
+    }
+    &__wrapper {
+        padding: 40px 105px;
+        h1 {
+            font-size: 64px;
+            line-height: 75px;
+            color: #4062B8;
+            margin-bottom: 37px;
+            text-align: center;
+        }
+         p {
+                font-size: 18px;
+                line-height: 21px;
+                &:nth-child(2) {
+                    color: #000000;
+                    font-weight: bold;
+                }
+                &:nth-child(4) {
+                    text-align: center;
+                    margin-top: 9px;
+                }
+            }
+        &_inputs {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            input {
+                margin-bottom: 21px;
+                height: 56px;
+                width: 384px;
+                border: 3px solid #A9A9A9;
+                border-radius: 8px;
+                padding: 0 16px;
+                font-size: 18px;
+                outline: none;
+                &:nth-child(1):focus + label:nth-child(2),
+                &:nth-child(1):valid + label:nth-child(2) {
+                    top: -13px;
+                    background-color: #fff;
+                    font-size: 18px;
+                    padding-left: 4px;
+                }
+                &:nth-child(3):focus + label:nth-child(4),
+                &:nth-child(3):valid + label:nth-child(4) {
+                    top: 65px;
+                    background-color: #fff;
+                    font-size: 18px;
+                    font-size: 18px;
+                    padding-left: 4px;
+                }
+                &:nth-child(5):focus + label:nth-child(6),
+                &:nth-child(5):valid + label:nth-child(6) {
+                    top: 142px;
+                    background-color: #fff;
+                    font-size: 18px;
+                    font-size: 18px;
+                    padding-left: 4px;
+                }
+            }
+            label {
+                position: absolute;
+                top: 15px;
+                left: 18px;
+                font-size: 20px;
+                border-radius: 10px;
+                width: 60px;
+                color: #d3d3d3;
+                background-color: rgba(255, 255, 255, .00004);
+                transition: 0.4s all;
+                pointer-events: none;
+                cursor: text;
+                &:nth-child(4) {
+                    top: 91px;
+                    width: 73px;
+                }
+                &:nth-child(6) {
+                    top: 168px;
+                    width: 173px;
+                    &:focus-within {
+                        top: 142px;
+                        background-color: rgba(255, 255, 255, 1);
+                    }
+                }
+            }
+            button {
+                height: 22px;
+                width: 22px;
+            }
+            img {
+                height: 22px;
+                width: 22px;
+                position: absolute;
+                top: 93px;
+                right: 13px;
+                cursor: pointer;
+                &:nth-child(7) {
+                    top: 171px;
+                }
+            }
+        }
+        &_validate {
+            padding-top: 16px;
+            padding-bottom: 51px;
+           &_wrap {
+                display: flex;
+                padding-top: 14px;
+                p {
+                    color: #4D4D4D;
+                    font-weight: normal;
+                    padding-left: 24px;
+                }
+                &:nth-child(1),
+                &:nth-child(2),
+                &:nth-child(4) {
+                    input {
+                        margin-bottom: 19px;
+                    }
+                }
+                input {
+                    position: absolute;
+                    opacity: 0;
+                    width: 30px;
+                    height: 30px;
+                    &:checked+label {
+                        &::before {
+                            content: url('./svg/checkboxcor.svg');
+                        }
+                    }
+                }
+                input+label::before {
+                        content: url('./svg/checkboxwrong.svg');
+                        display: inline-block;
+                        transform: scale(.6);
+                        width: 16px;
+                        height: 16px;
+                }
+           }
+        }
+        button {
+            width: 100%;
+            height: 55px;
+            font-size: 20px;
+            line-height: 23px;
+            color: #FFFFFF;
+            background: #5582F8;
+            border-radius: 8px;
+            cursor: pointer;
+            &:focus {
+                background: #4268CA;
+            }
+        }
+    }
+}
