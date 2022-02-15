@@ -22,8 +22,8 @@ class Pagination extends React.Component {
   }
 
   setPage(page) {
-    var items = this.props.items;
-    var pager = this.state.pager;
+    let items = this.props.items;
+    let pager = this.state.pager;
 
     if (page < 1 || page > pager.totalPages) {
       return;
@@ -31,7 +31,7 @@ class Pagination extends React.Component {
 
     pager = this.getPager(items.length, page);
 
-    var pageOfItems = items.slice(pager.startIndex, pager.endIndex + 1);
+    let pageOfItems = items.slice(pager.startIndex, pager.endIndex + 1);
     this.setState({
       pager: pager,
     });
@@ -44,8 +44,8 @@ class Pagination extends React.Component {
 
     pageSize = pageSize || 10;
 
-    var totalPages = Math.ceil(totalItems / pageSize);
-    var startPage, endPage;
+    let totalPages = Math.ceil(totalItems / pageSize);
+    let startPage, endPage;
 
     if (totalPages <= 10) {
       startPage = 1;
@@ -63,10 +63,10 @@ class Pagination extends React.Component {
       }
     }
 
-    var startIndex = (currentPage - 1) * pageSize;
-    var endIndex = Math.min(startIndex + pageSize - 1, totalItems - 1);
+    let startIndex = (currentPage - 1) * pageSize;
+    let endIndex = Math.min(startIndex + pageSize - 1, totalItems - 1);
 
-    var pages = [...Array(endPage + 1 - startPage).keys()].map(
+    let pages = [...Array(endPage + 1 - startPage).keys()].map(
       (i) => startPage + i
     );
 
@@ -85,7 +85,7 @@ class Pagination extends React.Component {
   }
 
   render() {
-    var pager = this.state.pager;
+    let pager = this.state.pager;
 
     if (!pager.pages || pager.pages.length <= 1) {
       return null;
@@ -132,25 +132,26 @@ class FormVisible extends React.Component {
     };
     this.onChangePage = this.onChangePage.bind(this);
     this.visibleDiv = this.visibleDiv.bind(this);
+    this.fetchData()
   }
-  
-  componentDidMount() {
+
+  fetchData = () => {
     fetch("http://95.216.173.135:8001/candidates")
-      .then((res) => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            isLoaded: true,
-            items: result,
-          });
-        },
-        (error) => {
-          this.setState({
-            isLoaded: true,
-            error,
-          });
-        }
-      );
+    .then((res) => res.json())
+    .then(
+      (result) => {
+        this.setState({
+          isLoaded: true,
+          items: result,
+        });
+      },
+      (error) => {
+        this.setState({
+          isLoaded: true,
+          error,
+        });
+      }
+    );
   }
 
   onChangePage(pageOfItems) {
@@ -170,11 +171,11 @@ class FormVisible extends React.Component {
     }
   }
 
-  InfoCandidate(i, props) {
+  InfoCandidate(i) {
     return (
       <div
         className="form__cand_show_more_details"
-        style={{ margin: props.childVisibleAnim }}
+        style={{ margin: this.state.childVisibleAnim }}
       >
         <div className="form__cand_show_more_details_wrap">
           <div className="form__cand_show_more_details_wrapper">
@@ -218,9 +219,49 @@ class FormVisible extends React.Component {
       }, 50);
     }
   }
+  
+  updateData(config) {
+    this.setState(config);
+  }
 
   render() {
     const { error, isLoaded, items } = this.state;
+    const candidates = this.state.pageOfItems.map((item, i) =>
+      <div className="form__cand_show" key={item.name}>
+          <input type="checkbox"></input>
+          <div className="form__cand_show_name">
+              <p>{item.firstName}</p>
+              <p>{item.lastName}</p>
+          </div>
+          <div className="form__cand_show_vacancy">
+            <p>{item.proposedPosition}</p>
+          </div>
+          <div className="form__cand_show_state">
+              <p>(No API)</p>
+          </div>
+          <div className="form__cand_show_pay">
+              <p>{item.salary}</p>
+              <p>{item.salaryCurrency}</p>
+          </div>
+          <div className="form__cand_show_company">
+              <p>{item.currentWorkingPlace}</p>
+          </div>
+          <div className="form__cand_show_priority">
+              <p>{item.priority}</p>
+          </div>
+          <div className="form__cand_show_date">
+              <p>(No API)</p>
+          </div>
+          <div>
+            <button className={this.state.rotate === i ? "form__cand_show_details_active" : "form__cand_show_details"} onClick={() => {this.visibleDiv(i)}}><i class="fas fa-caret-left"></i></button>
+            {
+              this.state.childVisible === i
+                ? this.InfoCandidate(item)
+                : null
+            }
+          </div>
+      </div>
+    )
     if (error) {
       return (
         <div className="form__cand">
@@ -235,93 +276,86 @@ class FormVisible extends React.Component {
       );
     } else {
       return (
-        <SortCandidates
-          setSortType={this.sortByName}
-          onChangePage={this.onChangePage}
-          childVisibleAnim={this.state.childVisibleAnim}
-          rotate={this.state.rotate}
-          visibleDiv={this.visibleDiv}
-          InfoCandidate={this.InfoCandidate}
-          childVisible={this.state.childVisible}
-          pageOfItems={this.state.pageOfItems}
-          items={this.state.items}
-        />
+        <React.Fragment>
+    <Toolbar initialData={this.fetchData} items={this.state.items} update={this.updateData.bind(this)} />
+    <div className="form__cand">
+    {candidates}
+    <Pagination items={this.state.items} onChangePage={this.onChangePage} />
+</div>
+    </React.Fragment>
       );
     }
   }
 }
 
-// sort is not ready yet
-function SortCandidates(props) {
+class Toolbar extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      clickedSort: false
+    }
+    this.sorted = { firstName: true, salary: true };
+  }
 
-  const [data, setData] = useState([]);
-  const [sortType, setSortType] = useState("albums");
+  sort = (type, i) => {
+    const { update, items } = this.props;
+    this.setState({ clickedSort: i })
+    if(!this.state.clickedSort === false) {
+      this.setState({ clickedSort: false })
+      this.props.initialData()
+    }
+    const isSorted = this.sorted[type];
+    const sorted = [].slice.call(items).sort((a, b) => {
+    if(type === 'firstName') {
+      return (!b[type].length < 1) - (!a[type].length < 1) || a[type].localeCompare(b[type]);
+    } else if(type === "salary") {
+      return (!b[type] < 1) - (!a[type] < 1) || a[type] - b[type];
+    }
+  })
 
-  useEffect(() => {
-    const sortArray = (type) => {
-      const types = {
-        name: "name",
-        payment: "payment",
-        date: "releasedOn",
-      };
-      const sortProperty = types[type];
-      const sorted = [...props.pageOfItems].sort(
-        (a, b) => b[sortProperty] - a[sortProperty]
-      );
-      setData(sorted);
-    };
-    sortArray(sortType);
-  }, [sortType]);
+  this.sorted[type] = !isSorted;
 
-  return (
-    <div className="form__cand">
-      {props.pageOfItems.map((item, i) => (
-        <div
-          className="form__cand_show"
-          onClick={() => props.visibleDiv(i)}
-          key={item.name}
-        >
-          <input type="checkbox"></input>
-          <div className="form__cand_show_name">
-            <p>{item.firstName}</p>
-            <p>{item.lastName}</p>
-          </div>
-          <div className="form__cand_show_vacancy">
-            <p>{item.proposedPosition}</p>
-          </div>
-          <div className="form__cand_show_state">
-            <p>(No API)</p>
-          </div>
-          <div className="form__cand_show_pay">
-            <p>{item.salary}</p>
-            <p>{item.salaryCurrency}</p>
-          </div>
-          <div className="form__cand_show_company">
-            <p>{item.currentWorkingPlace}</p>
-          </div>
-          <div className="form__cand_show_priority">
-            <p>{item.priority}</p>
-          </div>
-          <div className="form__cand_show_date">
-            <p>(No API)</p>
-          </div>
-          <div>
-            <button
-              className={
-                props.rotate === i
-                  ? "form__cand_show_details_active"
-                  : "form__cand_show_details"
-              }
-            >
-              <i class="fas fa-caret-left"></i>
-            </button>
-            {props.childVisible === i ? props.InfoCandidate(item, props) : null}
-          </div>
-        </div>
-      ))}
-      <Pagination items={props.items} onChangePage={props.onChangePage} />
-    </div>
-  );
+  update({
+    items: sorted,
+    active: 0
+  });
+  }
+
+  updateSort(value, text, i) {
+    return (
+      <React.Fragment>
+          <button className={this.state.clickedSort === i ? "form_up__filter_button_active" : "form_up__filter_button"} onClick={() => this.sort(value, i)}>{text}</button>
+        </React.Fragment>
+    )
+  }
+
+  render() {
+    const buttonSorted = [];
+    for(let i = 1; i <= 3; i++) {
+      let buttonValue = "";
+      let buttonLabel = "";
+      switch(i) {
+        case 1:
+          buttonValue = 'firstName';
+          buttonLabel = 'По имени';
+          break;
+        case 2:
+          buttonValue = 'salary';
+          buttonLabel = 'По ЗП';
+          break;
+        case 3: 
+          buttonValue = 'NONE'; 
+          buttonLabel = 'По дате';
+          break;
+      }
+      buttonSorted.push(this.updateSort(buttonValue, buttonLabel, i))
+    }
+    return (
+      <div className="form_up__filter">
+        {buttonSorted}
+      </div>
+    );
+  }
 }
 
 export default class Form extends Component {
@@ -331,7 +365,6 @@ export default class Form extends Component {
     return (
       <div className="form">
         <div className="form_up">
-          <div className="form_up__name">
             <p>Кандидаты</p>
             <a href="/buildfortesters/additioncandidates">
               <button id="AdditionButton">Добавить кандидата</button>
@@ -356,12 +389,6 @@ export default class Form extends Component {
             <div className="form_up__clear">
               <button>Очистить</button>
             </div>
-          </div>
-          <div className="form_up__filter">
-            <button>По имени</button>
-            <button>По зп</button>
-            <button>По дате</button>
-          </div>
         </div>
         <FormVisible />
       </div>

@@ -21,16 +21,13 @@
 	margin: 40px 120px;
 	width: 100%;
 	position: relative;
-    &_up { // .form_up
-	    margin: 0 auto;
-        &__name {
-            display: flex;
-            justify-content: space-between;
-            p {
-                display: inline-block;
-                font-size: 48px;
-                font-weight: 300;
-            }
+    &_up {
+        display: flex;
+        justify-content: space-between;
+        p {
+            display: inline-block;
+            font-size: 48px;
+            font-weight: 300;
         }
         &__search {
             margin-top: 32px;
@@ -115,7 +112,7 @@
         &__filter {
             margin: 1.5625rem 0 0.625rem 0;
             background-color: #fff;
-            button {
+            &_button {
                 font-size: 1.125rem;
                 font-weight: 400;
                 color: #999999;
@@ -140,13 +137,41 @@
                 &:hover {
                     color: #626262;
                 }
+                &_active {
+                    font-size: 1.125rem;
+                    font-weight: 400;
+                    color: #999999;
+                    background-color: #fff;
+                    border: 0;
+                    cursor: pointer;
+                    &:nth-child(1) {
+                        margin-left: 3.47%;
+                    }
+                    &:nth-child(2) {
+                        margin-left: 29%;
+                    }
+                    &:nth-child(3) {
+                        margin-left: 35%;
+                    }
+                    &:after {
+                        font-family: 'Font Awesome 5 Free';
+                        content: '\f077';
+                        font-weight: 800;
+                        padding-right: 0.375rem;
+                        display: inline-block;
+                        transform: rotate(180deg);
+                    }
+                    &:hover {
+                        color: #626262;
+                    }
+                }
             }
         }
     }
 	&_load {
 		text-align: center;
-		font-size: 23px;
-		padding-top: 20px;
+		font-size: 25px;
+        margin-top: 80px;
 	}
     &__cand {
         width: 100%;
