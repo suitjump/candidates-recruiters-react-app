@@ -164,40 +164,9 @@ class ValidateContacts extends Component {
   Capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
-  validateName = (e) => {
-    const re = /^[a-z а-яёЁЇїІіЄєҐґ ,.'-]+$/i;
+  validateValue = (e, re) => {
     if (e.target.value === "" || re.test(e.target.value))
-      this.setState({ firstName: e.target.value });
-    return this.handleChange;
-  };
-  validateSurname = (e) => {
-    const re = /^[a-z а-яёЁЇїІіЄєҐґ ,.'-]+$/i;
-    if (e.target.value === "" || re.test(e.target.value))
-      this.setState({ lastName: e.target.value });
-    return this.handleChange;
-  };
-  validateNumber = (e) => {
-    const re = /^[\+\d]*$/;
-    if (e.target.value === "" || re.test(e.target.value))
-      this.setState({ phoneNumber1: e.target.value });
-    return this.handleChange;
-  };
-  validateNumberSec = (e) => {
-    const re = /^[\+\d]*$/;
-    if (e.target.value === "" || re.test(e.target.value))
-      this.setState({ phoneNumber2: e.target.value });
-    return this.handleChange;
-  };
-  validateEmail = (e) => {
-    const re = /^[a-z 1-9 .@-_]+$/i;
-    if (e.target.value === "" || re.test(e.target.value))
-      this.setState({ email: e.target.value });
-    return this.handleChange;
-  };
-  validateSalary = (e) => {
-    const re = /^[\d]*$/;
-    if (e.target.value === "" || re.test(e.target.value))
-      this.setState({ salary: e.target.value });
+      this.setState({ [e.target.name]: e.target.value });
     return this.handleChange;
   };
   resetMessage() {
@@ -224,7 +193,7 @@ class ValidateContacts extends Component {
                         type="text"
                         name="firstName"
                         maxLength={20}
-                        onChange={this.validateName}
+                        onChange={(e) => this.validateValue(e, /^[a-z а-яёЁЇїІіЄєҐґ ,.'-]+$/i)}
                         value={this.Capitalize(this.state.firstName)}
                       />
                     </div>
@@ -235,7 +204,7 @@ class ValidateContacts extends Component {
                         name="lastName"
                         maxLength={20}
                         required
-                        onChange={this.validateSurname}
+                        onChange={(e) => this.validateValue(e, /^[a-z а-яёЁЇїІіЄєҐґ ,.'-]+$/i)}
                         value={this.Capitalize(this.state.lastName)}
                       />
                     </div>
@@ -249,7 +218,7 @@ class ValidateContacts extends Component {
                         style={{ border: this.state.borderNumber }}
                         placeholder="+38 (___) ___-__-__"
                         maxLength="13"
-                        onChange={this.validateNumber}
+                        onChange={(e) => this.validateValue(e, /^[\+\d]*$/)}
                         value={this.state.phoneNumber1}
                         required="true"
                       />
@@ -263,7 +232,7 @@ class ValidateContacts extends Component {
                         type="text"
                         name="email"
                         style={{ border: this.state.borderEmail }}
-                        onChange={this.validateEmail}
+                        onChange={(e) => this.validateValue(e, /^[a-z 1-9 .@-_]+$/i)}
                         value={this.state.email}
                         required
                       />
@@ -279,7 +248,7 @@ class ValidateContacts extends Component {
                       name="phoneNumber2"
                       placeholder="+38 (___) ___-__-__"
                       maxLength="13"
-                      onChange={this.validateNumberSec}
+                      onChange={(e) => this.validateValue(e, /^[\+\d]*$/)}
                       value={this.state.phoneNumber2}
                     />
                     <label>Образование</label>
@@ -419,7 +388,7 @@ class ValidateContacts extends Component {
                   type="text"
                   name="salary"
                   maxLength={9}
-                  onChange={this.validateSalary}
+                  onChange={(e) => this.validateValue(e, /^[\d]*$/)}
                   value={this.state.salary}
                 />
                 <label>Валюта зарплаты</label>

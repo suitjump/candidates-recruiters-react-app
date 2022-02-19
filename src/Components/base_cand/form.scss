@@ -47,13 +47,17 @@
                 font-weight: 400;
                 outline: none;
             }
-            i {
+            &_button {
                 position: absolute;
                 left: 15rem;
                 font-size: 1.25rem;
                 top: 0.9375rem;
-                color: rgb(166, 166, 166);
+                border: none;
+                background: none;
                 cursor: pointer;
+                i {
+                    color: rgb(166, 166, 166);
+                }
             }
             &_buttons {
                 width: 864px;

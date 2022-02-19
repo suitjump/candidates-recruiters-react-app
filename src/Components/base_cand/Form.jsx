@@ -129,9 +129,12 @@ class FormVisible extends React.Component {
       rotate: false,
       childVisible: false,
       childVisibleAnim: "0",
+      clickedSort: false,
+      searchValue: ""
     };
     this.onChangePage = this.onChangePage.bind(this);
     this.visibleDiv = this.visibleDiv.bind(this);
+    this.sorted = { firstName: true, salary: true };
     this.fetchData()
   }
 
@@ -171,7 +174,61 @@ class FormVisible extends React.Component {
     }
   }
 
-  InfoCandidate(i) {
+  visibleDiv(i) {
+    this.setState({ childVisible: i, rotate: i });
+    if (this.state.childVisible === i || this.state.rotate === i) {
+      this.setState({ childVisibleAnim: "0", rotate: false });
+      setTimeout(() => {
+        this.setState({ childVisible: false });
+      }, 200);
+    } else {
+      setTimeout(() => {
+        this.setState({ childVisibleAnim: "0 0 18.875rem 0" });
+      }, 50);
+    }
+  }
+  
+  updateData(config) {
+    this.setState(config);
+  }
+  clearSort() {
+    this.setState({ clickedSort: false })
+    this.fetchData()
+  }
+  sortType = (type, i) => {
+    const { items } = this.state;
+    this.setState({ clickedSort: i })
+    if(!this.state.clickedSort === false) {
+      this.setState({ clickedSort: false })
+      this.fetchData()
+    }
+    const isSorted = this.sorted[type];
+    const sorted = [].slice.call(items).sort((a, b) => {
+    if(type === 'firstName') {
+      return (!b[type].length < 1) - (!a[type].length < 1) || a[type].localeCompare(b[type]);
+    } else if(type === "salary") {
+      return (!b[type] < 1) - (!a[type] < 1) || a[type] - b[type];
+    }
+  })
+
+  console.log(sorted)
+
+  this.sorted[type] = !isSorted;
+
+  this.updateData({
+    items: sorted,
+    active: 0
+  });
+  }
+  updateSort(value, text, i) {
+    return (
+      <React.Fragment>
+          <button className={this.state.clickedSort === i ? "form_up__filter_button_active" : "form_up__filter_button"} onClick={() => this.sortType(value, i)}>{text}</button>
+        </React.Fragment>
+    )
+  }
+
+  InfoCandidate = (i) => {
     return (
       <div
         className="form__cand_show_more_details"
@@ -206,130 +263,23 @@ class FormVisible extends React.Component {
     );
   }
 
-  visibleDiv(i) {
-    this.setState({ childVisible: i, rotate: i });
-    if (this.state.childVisible === i || this.state.rotate === i) {
-      this.setState({ childVisibleAnim: "0", rotate: false });
-      setTimeout(() => {
-        this.setState({ childVisible: false });
-      }, 200);
-    } else {
-      setTimeout(() => {
-        this.setState({ childVisibleAnim: "0 0 18.875rem 0" });
-      }, 50);
-    }
+  searchCandidatesValue(e) {
+    this.setState({searchValue: e.target.value});
   }
-  
-  updateData(config) {
-    this.setState(config);
+  searchCandidates() {
+    this.state.searchValue.match(/^\s*$/) // if searchValue has empty value
+    ? this.fetchData() 
+    : this.setState({items: this.state.items.filter(cand => {
+    return cand.firstName.toLowerCase().includes(this.state.searchValue.toLowerCase())})})
+  }
+
+  clearReturn() {
+    this.setState({searchValue: '', clickedSort: false});
+    this.fetchData()
   }
 
   render() {
-    const { error, isLoaded, items } = this.state;
-    const candidates = this.state.pageOfItems.map((item, i) =>
-      <div className="form__cand_show" key={item.name}>
-          <input type="checkbox"></input>
-          <div className="form__cand_show_name">
-              <p>{item.firstName}</p>
-              <p>{item.lastName}</p>
-          </div>
-          <div className="form__cand_show_vacancy">
-            <p>{item.proposedPosition}</p>
-          </div>
-          <div className="form__cand_show_state">
-              <p>(No API)</p>
-          </div>
-          <div className="form__cand_show_pay">
-              <p>{item.salary}</p>
-              <p>{item.salaryCurrency}</p>
-          </div>
-          <div className="form__cand_show_company">
-              <p>{item.currentWorkingPlace}</p>
-          </div>
-          <div className="form__cand_show_priority">
-              <p>{item.priority}</p>
-          </div>
-          <div className="form__cand_show_date">
-              <p>(No API)</p>
-          </div>
-          <div>
-            <button className={this.state.rotate === i ? "form__cand_show_details_active" : "form__cand_show_details"} onClick={() => {this.visibleDiv(i)}}><i class="fas fa-caret-left"></i></button>
-            {
-              this.state.childVisible === i
-                ? this.InfoCandidate(item)
-                : null
-            }
-          </div>
-      </div>
-    )
-    if (error) {
-      return (
-        <div className="form__cand">
-          <p class="form_load"> Error {error.message} </p>
-        </div>
-      );
-    } else if (!isLoaded) {
-      return (
-        <div className="form__cand">
-          <p class="form_load"> Загрузка кандидатов... </p>
-        </div>
-      );
-    } else {
-      return (
-        <React.Fragment>
-    <Toolbar initialData={this.fetchData} items={this.state.items} update={this.updateData.bind(this)} />
-    <div className="form__cand">
-    {candidates}
-    <Pagination items={this.state.items} onChangePage={this.onChangePage} />
-</div>
-    </React.Fragment>
-      );
-    }
-  }
-}
-
-class Toolbar extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      clickedSort: false
-    }
-    this.sorted = { firstName: true, salary: true };
-  }
-
-  sort = (type, i) => {
-    const { update, items } = this.props;
-    this.setState({ clickedSort: i })
-    if(!this.state.clickedSort === false) {
-      this.setState({ clickedSort: false })
-      this.props.initialData()
-    }
-    const isSorted = this.sorted[type];
-    const sorted = [].slice.call(items).sort((a, b) => {
-    if(type === 'firstName') {
-      return (!b[type].length < 1) - (!a[type].length < 1) || a[type].localeCompare(b[type]);
-    } else if(type === "salary") {
-      return (!b[type] < 1) - (!a[type] < 1) || a[type] - b[type];
-    }
-  })
-
-  this.sorted[type] = !isSorted;
-
-  update({
-    items: sorted,
-    active: 0
-  });
-  }
-
-  updateSort(value, text, i) {
-    return (
-      <React.Fragment>
-          <button className={this.state.clickedSort === i ? "form_up__filter_button_active" : "form_up__filter_button"} onClick={() => this.sort(value, i)}>{text}</button>
-        </React.Fragment>
-    )
-  }
-
-  render() {
+    const { error, isLoaded } = this.state;
     const buttonSorted = [];
     for(let i = 1; i <= 3; i++) {
       let buttonValue = "";
@@ -350,29 +300,24 @@ class Toolbar extends Component {
       }
       buttonSorted.push(this.updateSort(buttonValue, buttonLabel, i))
     }
-    return (
-      <div className="form_up__filter">
-        {buttonSorted}
-      </div>
-    );
-  }
-}
-
-export default class Form extends Component {
-
-
-  render() {
-    return (
-      <div className="form">
-        <div className="form_up">
-            <p>Кандидаты</p>
-            <a href="/buildfortesters/additioncandidates">
-              <button id="AdditionButton">Добавить кандидата</button>
-            </a>
-          </div>
+    if (error) {
+      return (
+        <div className="form__cand">
+          <p class="form_load"> Error {error.message} </p>
+        </div>
+      );
+    } else if (!isLoaded) {
+      return (
+        <div className="form__cand">
+          <p class="form_load"> Загрузка кандидатов... </p>
+        </div>
+      );
+    } else {
+      return (
+        <React.Fragment>
           <div className="form_up__search">
-            <input placeholder="Поиск по имени"></input>
-            <i class="fas fa-search"></i>
+            <input onChange={(e) => this.searchCandidatesValue(e)} onKeyDown={(e) => {if(e.keyCode === 13) this.searchCandidates()}} value={this.state.searchValue} placeholder="Поиск по имени"></input>
+            <button className="form_up__search_button"> <i onClick={this.searchCandidates.bind(this)} class="fas fa-search"></i></button>
             <div className="form_up__search_buttons">
               <button>Вакансия</button>
               <button>Статус</button>
@@ -387,9 +332,69 @@ export default class Form extends Component {
               <button>Удалить</button>
             </div>
             <div className="form_up__clear">
-              <button>Очистить</button>
+              <button onClick={this.clearReturn.bind(this)}>Очистить</button>
             </div>
         </div>
+      <div className="form_up__filter">
+        {buttonSorted}
+      </div>
+    <div className="form__cand">
+    {this.state.pageOfItems.map((item, i) =>
+    <div className="form__cand_show" key={item.name}>
+        <input type="checkbox"></input>
+        <div className="form__cand_show_name">
+            <p>{item.firstName}</p>
+            <p>{item.lastName}</p>
+        </div>
+        <div className="form__cand_show_vacancy">
+          <p>{item.proposedPosition}</p>
+        </div>
+        <div className="form__cand_show_state">
+            <p>(No API)</p>
+        </div>
+        <div className="form__cand_show_pay">
+            <p>{item.salary}</p>
+            <p>{item.salaryCurrency}</p>
+        </div>
+        <div className="form__cand_show_company">
+            <p>{item.currentWorkingPlace}</p>
+        </div>
+        <div className="form__cand_show_priority">
+            <p>{item.priority}</p>
+        </div>
+        <div className="form__cand_show_date">
+            <p>(No API)</p>
+        </div>
+        <div>
+          <button className={this.state.rotate === i ? "form__cand_show_details_active" : "form__cand_show_details"} onClick={() => {this.visibleDiv(i)}}><i class="fas fa-caret-left"></i></button>
+          {
+           this.state.childVisible === i
+              ? this.InfoCandidate(item)
+              : null
+          }
+        </div>
+    </div>
+  )}
+    <Pagination items={this.state.items} onChangePage={this.onChangePage} />
+</div>
+    </React.Fragment>
+      );
+    }
+  }
+}
+
+
+export default class Form extends Component {
+
+  render() {
+    return (
+      <div className="form">
+        <div className="form_up">
+            <p>Кандидаты</p>
+            <a href="/buildfortesters/additioncandidates">
+              <button id="AdditionButton">Добавить кандидата</button>
+            </a>
+          </div>
         <FormVisible />
       </div>
     );
